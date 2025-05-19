@@ -12,10 +12,6 @@ use App\Traits\ApiResponse;
 class EventApiController extends Controller
 {
     use ApiResponse;
-
-    /**
-     * عرض جميع الأحداث
-     */
     public function index()
 {
     $events = Event::paginate(10);
@@ -27,11 +23,6 @@ class EventApiController extends Controller
     return $this->success(EventResource::collection($events), 'Events retrieved successfully');
 }
 
-
-    /**
-     * إضافة حدث جديد
-     */
-   // داخل الكنترولر:
 public function store(Request $request)
 {
     $validated = $request->validate([
@@ -60,10 +51,6 @@ public function store(Request $request)
     return $this->success(new EventResource($data), 'Event created successfully', 201);
 }
 
-
-    /**
-     * عرض حدث معين حسب العنوان والتاريخ
-     */
     public function showevent(Request $request)
 {
     $validated = $request->validate([
@@ -71,7 +58,6 @@ public function store(Request $request)
         'date' => 'nullable|date',
     ]);
 
-    // تحقق إذا كانت جميع المدخلات فارغة
     if (empty($validated['title']) && empty($validated['date'])) {
         return $this->error('Please provide at least one search criterion', 400);
     }
@@ -95,9 +81,6 @@ public function store(Request $request)
     return $this->success(EventResource::collection($events), 'Events found');
 }
 
-    /**
-     * تحديث حدث
-     */
     public function update(Request $request)
     {
         $validated = $request->validate([
@@ -130,28 +113,19 @@ public function store(Request $request)
         return $this->success(new EventResource($event), 'Event updated successfully');
     }
 
-    /**
-     * حذف حدث
-     */
+   
     public function destroy(Request $request)
     {
-    // البحث عن الحدث باستخدام الـ id
     $event = Event::find($request['id']);
 
-    // إذا لم يتم العثور على الحدث، ارجع برسالة خطأ
     if (!$event) {
         return $this->error('Event not found', 404);
     }
 
-    // إذا كان الحدث مرتبطًا بمستخدمين، فك الارتباط أولًا
     if ($event->users()->count() > 0) {
-        $event->users()->detach(); // فك الارتباط
+        $event->users()->detach(); 
     }
-
-    // حذف الحدث من قاعدة البيانات
     $event->delete();
-
-    // إرجاع استجابة ناجحة بعد الحذف
     return $this->success(null, 'Event deleted successfully');
     }
     

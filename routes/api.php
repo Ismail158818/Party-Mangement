@@ -39,10 +39,6 @@ Route::middleware(['auth:sanctum','api.rate.limit'])->group(function () {
         Route::post('destroyComment', 'destroy');
         Route::post('updateComment', 'update');
     });
-
-    // PayPal Routes
-  
-    
 });
 
 Route::controller(PayPalApiController::class)->group(function () {

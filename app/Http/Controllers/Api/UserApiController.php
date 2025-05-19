@@ -15,33 +15,27 @@ class UserApiController extends Controller
     
 
     public function toggleJoin(Request $request)
-    {
-        
+    {  
         if (auth()->user()->is_admin) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Admins are not allowed to perform this action'
             ], 403);
         }
-
         $request->validate([
             'event_id' => 'required|integer|exists:events,id',
             'quantity_tickets' => 'required|integer|min:1'
         ]);
-
         $event = Event::findOrFail($request->event_id);
-
         if ($request->quantity_tickets > $event->tickets_limit) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Not enough tickets available'
             ], 400);
         }
-
         $invoice = Invoice::where('event_id', $event->id)
             ->where('user_id', auth()->id())
             ->first();
-
         if (!$invoice) {
             $new_invoice = Invoice::create([
                 'user_id' => auth()->id(),
@@ -50,14 +44,12 @@ class UserApiController extends Controller
                 'total_amount' => $event->tickect_price * $request->quantity_tickets,
                 'payment_status' => 'pending'
             ]);
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Invoice created successfully',
                 'invoice' => $new_invoice
             ], 200);
         }
-
         return response()->json([
             'status' => 'error',
             'message' => 'Invoice already exists',
